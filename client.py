@@ -1,23 +1,23 @@
 import socket
-import Parser
-
+from parser import Parser
 #clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #clientsocket.connect(('localhost',8089))
 #clientsocket.send('hello')
-
+parserObject = Parser("liftr")
 print("beginning initialization")
-
-stringParser = Parser()
-print("parser has been initialized")
-
-print("'liftr interface started' type:'end' to end")
+print("liftr interface started type:'end' to end")
 input = raw_input()
 while(input != 'end'):
-    if(input == "help"):
-        print("commands:")
-        print("show: shows the files inside the liftr server")
-        print("send: sends current file to the liftr server, syntax --> send: filename")
-        print("retrieve: gets a file in the liftr server")
+        if(input == 'debug'):
+                print('debug activation detected, entering debug mode')
+                parserObject.enableDebugMode
+        input = raw_input()
     
+            
+            
+           
+          
+   
+            
         
     
