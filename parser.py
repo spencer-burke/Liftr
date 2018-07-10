@@ -10,8 +10,7 @@ class Parser(object):
     def __init__(self, flag):
         self.FLAG = flag
     #breaks entered command into parts with a white space delimeter
-    def parseString(self, arg):
-            
+    def parseString(self, arg): 
             if(len(self.currentCommand) >= 2 and currentCommand[0] == self.FLAG):
                 #returns "send" and tells the client to send files
                 if(self.currentCommand[1] == self.commandList[0]):
@@ -33,7 +32,10 @@ class Parser(object):
            self.currentCommand.append(arg)
     #enables debug mode
     def enableDebugMode(self):
-            debugMode = True
+           self.debugMode = True
+    #disables debug mode
+    def disableDebugMode(self):
+           self.debugMode = False
     #returns the status of debugMode
     def isInDebugMode(self):
-            return debugMode
+            return self.debugMode
