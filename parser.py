@@ -11,22 +11,22 @@ class Parser(object):
         self.FLAG = flag
     #breaks entered command into parts with a white space delimeter
     def parseString(self, arg): 
-            if(len(self.currentCommand) >= 2 and currentCommand[0] == self.FLAG):
+            if(len(self.currentCommand) >= 2 and self.currentCommand[0] == self.FLAG):
                 #returns "send" and tells the client to send files
                 if(self.currentCommand[1] == self.commandList[0]):
                         if(self.isInDebugMode == True):
                                 print("Item in command list " + commandList[0] + "send command detected")
-                        return commandList[0]
+                        return self.commandList[0]
                 #returns "display" and tells the client to display all the files
-                if(self.curentCommand[1] == self.commandList[1]):
+                if(self.currentCommand[1] == self.commandList[1]):
                         if(self.isInDebugMode == True):
                                 print("Item in command list " + commandList[1] + "display command detected")
-                        return commandList[1]
+                        return self.commandList[1]
                 #returns "help" and tells the client to display all of the commands
                 if(self.currentCommand[1] == self.commandList[2]):
                         if(self.isInDebugMode == True):
                                 print("Item in command list " + commandList[2] + "display command detected")
-                        return commandList[2]
+                        return self.commandList[2]
     #updates the current command
     def update(self, arg): 
            self.currentCommand.append(arg)

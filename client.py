@@ -1,11 +1,12 @@
+import sys
 import socket
 from parser import Parser
 #clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #clientsocket.connect(('localhost',8089))
 #clientsocket.send('hello')
+print('beginning initialization')
 parserObject = Parser("liftr")
-print("beginning initialization")
-print("liftr interface started type:'end' to end")
+print("liftr started type:'end' to end")
 input = raw_input()
 while(input != 'end'):
         if(parserObject.isInDebugMode()):
