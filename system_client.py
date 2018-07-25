@@ -25,4 +25,8 @@ if sanitizedInput[0] == 'help':
         print("send --> send file specified in argument")
         print("-----current commands available-----")
 print("\n")
+elif sanitizedInput[0] == 'send':
+        pass
 
+
+        
