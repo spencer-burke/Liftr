@@ -1,13 +1,28 @@
 import socket
-
-serversocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-serversocket.bind(('localhost',8089))
-serversocket.listen(5) #become a server socket, maximum of 5 connections
-
+#reserve a port for the service
+port = 60000
+#create a socket object
+sock = socket.socket()
+#get the local machine name
+host = sock.gethostname()
+#bind to the port
+sock.bind((host,port))
+#wiat for client connection
+sock.listen(5)
+print("----Server Listening----")
 while True:
-    connection, address = serversocket.accept()
-    buf = connection.recv(64)
-    if len(buf) > 0:
-        print buf
-        break
-
+    #establish connection with client
+    conn, addr = sock.accept()
+    print("Connection incoming from ", addr)
+    #the file
+    filename='testfile.txt'
+    f = open(filename, 'rb')
+    l = f.read(1024)
+    while (l):
+        conn.send(l)
+        print('File sent', repr(l))
+        l = f.read(1024)
+    f.close()
+    print('Finished file transfer')
+    conn.send('Connection complete')
+    conn.close()
