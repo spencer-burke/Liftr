@@ -2,6 +2,7 @@ import sys
 import socket
 import subprocess
 '''
+project: liftr
 title: liftr file server
 author: Spencer Burke
 last-updated: 8/22/18
@@ -34,17 +35,13 @@ def configureSocket(arg_socket):
         print(str(error))
     print('telling socket to listen')
     arg_socket.listen(5)
-#collects incoming information
-def collectInfo(arg_socket):
-    print('looking for connections')
+#collects commands from the client for the server
+def getInfo(arg_socket):
     client_socket, addr = arg_socket.accept()
-    print(str(addr))
     data = client_socket.recv(2048)
-    reply = 'server output: ' + data.decode()
-    print(reply)
-    print('connection complete')
+    return data.decode()
 #routine to send a file
-def sendFile(arg_socket,arg_file_name):
+def sendFile(arg_socket):
     print('sending file')
     while True:
         client_socket, addr = arg_socket.accept()
@@ -58,12 +55,12 @@ def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     configureSocket(server_socket)
     print('socket successfully listening on port 9999 with the ip address')
-    front_input = input()
     #feedback loop
-    while front_input != 'end':
-        if front_input == 'show':
-            collectInfo(server_socket)
-        front_input = input()
+    while(True):
+        current_command = getInfo(server_socket)
+        print(current_command)
+        if(current_command == 'recv'):
+            sendFile(server_socket)
     closeServer()
 if __name__ == "__main__":
     main()
