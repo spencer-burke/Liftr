@@ -5,9 +5,11 @@ import subprocess
 project: liftr
 title: liftr file server
 author: Spencer Burke
-last-updated: 8/28/18
+last-updated: 9/1/18
 '''
 class ServerUtils:
+    CHUNK_SIZE = 8 * 1024
+    command_list = ["send","show","recv"]
     def __init__(self, address, port):
         self.address = address
         self.port = port
@@ -49,11 +51,23 @@ class ServerUtils:
         data = client_socket.recv(2048)
         return data.decode()
     #routine to send a file
-    def sendFile(self):
+    def sendFile(self, fileName):
         print('sending file')
         while True:
             client_socket, addr = self.listener_socket.accept()
-            with open('testFile.txt','rb') as file:
+            with open(fileName,'rb') as file:
                 client_socket.sendfile(file, 0)
             client_socket.close()
         print('file transfer complete')
+    #recieves the file
+    def recieveFile(self):
+        chunk = self.listener_socket.recv(CHUNK_SIZE)
+        while chunk:
+            chunk = self.listener_socket.recv(CHUNK_SIZE)
+    #sends the command the client wishes to execute
+    def sendCommand(self, command):
+        try:
+            print("sending current command")
+            self.listener_socket.send(str.encode(command))
+        except OSError as error:
+            print(str(error))
