@@ -6,7 +6,7 @@ from ServerUtils import ServerUtils
 project: liftr
 title: liftr file server
 author: Spencer Burke
-last-updated: 8/28/18
+last-updated: 6/1/20
 '''
 #test class based main
 def main():
