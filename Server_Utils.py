@@ -9,7 +9,7 @@ author: Spencer Burke
 last-updated: 6/1/20
 '''
 
-class ServerUtils:
+class Server_Utils:
     CHUNK_SIZE = 8 * 1024
     command_list = ["send","show","recv"]
 
@@ -20,7 +20,7 @@ class ServerUtils:
         self.configureFirewall()
         self.configureSocket(self.listener_socket)
 
-    def configureFirewall(self):
+    def configure_firewall(self):
         '''
         configures firewall for the server to function
         opens an incoming connection on tcp port 9999 with an iptables subrocess    
@@ -32,8 +32,7 @@ class ServerUtils:
         except OSError as error:
             print(str(error))
     
-    
-    def closeServer(self):
+    def close_server(self):
         '''
         reconfigures the firewall
         closes the incoming connection on tcp port 9999 with an iptables subrocess
@@ -44,7 +43,7 @@ class ServerUtils:
         except OSError as error:
             print(str(error))
 
-    def configureSocket(self,arg_socket):
+    def configure_socket(self,arg_socket):
         #binds socket to host
         try:
             print('binding socket to port')
@@ -56,14 +55,14 @@ class ServerUtils:
         print('telling socket to listen')
         self.listener_socket.listen(5)
 
-    def getInfo(self):
+    def get_info(self):
         #collects commands from the client for the server
         print('listening for information')
         client_socket, addr = self.listener_socket.accept()
         data = client_socket.recv(2048)
         return data.decode()
 
-    def sendFile(self, fileName):
+    def send_file(self, fileName):
         #routine to send a file
         print('sending file')
         while True:
@@ -73,13 +72,13 @@ class ServerUtils:
             client_socket.close()
         print('file transfer complete')
 
-    def recieveFile(self):
+    def recieve_file(self):
         #recieves the file
         chunk = self.listener_socket.recv(CHUNK_SIZE)
         while chunk:
             chunk = self.listener_socket.recv(CHUNK_SIZE)
 
-    def sendCommand(self, command):
+    def send_command(self, command):
         #sends the command the client wishes to execute
         try:
             print("sending current command")
