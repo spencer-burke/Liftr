@@ -11,7 +11,7 @@ last-updated: 6/1/20
 
 class Server_Utils:
     CHUNK_SIZE = 8 * 1024
-    command_list = ["send","show","recv"]
+    command_list = ["store","show","retr"]
     logging.basicConfig(filename='./Logs/server.log', filemode='w', format='%(filename)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
     def __init__(self, address, port):
@@ -87,3 +87,31 @@ class Server_Utils:
         except OSError as error:
             logging.error(str(error))
 
+def send_file(file_name, host, port):
+    '''
+    file_name(String): name of the file being sent
+    host(string): ip address of the host being connected to
+    port(int): port number being connected to on the host
+    '''
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        file_data = open(file_name, 'rb')
+        data = file_data.read() 
+        s.connect((host, port))
+        s.sendall(data)
+        file_data.close()
+        s.close()
+
+def send_command(command, host, port):
+    '''
+    command(string): name of the command being sent
+    host(string): ip address of the host being connected to
+    port(int): port number being connected to on the host
+    '''
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((host, port))
+        s.sendall(command.encode("utf-8"))
+        s.close()
+'''
+curr note(the list command can be used to create a list of the bytes recieved[an ascii character code per byte]
+getting the length of this list can be used to determine if the thing received is a command
+''' 
