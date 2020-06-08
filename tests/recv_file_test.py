@@ -25,14 +25,3 @@ def test_store_file():
     assert os.path.isfile('./recv-file.txt') == True, "File should exist"
     os.remove('recv-file.txt')
 
-def cleanup():
-    #cleans up after the test to make sure the directory is only filled with test files
-    os.remove('recv-file.txt')
- 
-#if __name__ == '__main__':
-#    main()
-#    cleanup()
-
-'''
-Currently working on building fixtures into the tests to clean up the directory 
-'''
