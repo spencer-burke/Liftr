@@ -3,8 +3,8 @@ import queue
 import pytest
 import threading
 
-#using threads to test the server 
 def test_recv_command():
+    #using threads to test the server 
     HOST = '127.0.0.1'
     PORT = 9999
      
