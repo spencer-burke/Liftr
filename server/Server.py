@@ -23,7 +23,7 @@ def example_server():
             recv_file("example_file.txt", HOST, DATA_PORT)   
 
 def main():
-    pass
+    example_server() 
 
 if '__name__' == '__main__':
-   pass 
+    main()
