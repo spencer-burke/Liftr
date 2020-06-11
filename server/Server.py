@@ -9,44 +9,21 @@ from Server_Utils import Server_Utils, recv_file, recv_command
 project: liftr
 title: liftr file server
 author: Spencer Burke
-last-updated: 6/5/20
+last-updated: 6/10/20
 '''
 
-'''
-receiving a file(this is not done it is a proof of concept and still requires things like proper dynamic file names) 
-'''
-#with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-#    sock.bind((HOST, PORT))
-#    sock.listen()
-#    conn, addr = sock.accept()
-#    with conn:
-#        new_file = open('hello_file', 'wb')
-#        data = conn.recv(1)
-#        new_file.write(data)
-#        while data:
-#            data = conn.recv(1024)
-#            new_file.write(data)
-#        new_file.close()
-
-'''
-receiving a command
-'''
-#sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-#sock.bind((HOST, PORT))
-#sock.listen()
-#conn, addr = sock.accept()
-#new_command = ""
-#with conn:
-#    data = conn.recv(1)
-#    new_command += data.decode("utf-8")
-#    while data:
-#        data = conn.recv(1024)
-#        new_command += data.decode("utf-8")
-#print(new_command)
-#sock.close()
-
-if '__name__' == '__main__':
+def example_server():
     HOST = '127.0.0.1'
     PORT = 9999
+    DATA_PORT = 10000
     logging.basicConfig(filename='./logs/server.log', filemode='w', format='%(filename)s - %(level    name)s - %(message)s', level=logging.DEBUG)
+    command = recv_command(HOST, PORT)
+    if parse_connection(command) == 0:
+        if command == "store":
+            recv_file("example_file.txt", HOST, DATA_PORT)   
 
+def main():
+    pass
+
+if '__name__' == '__main__':
+   pass 

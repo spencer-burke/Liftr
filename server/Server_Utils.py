@@ -12,7 +12,7 @@ last-updated: 6/5/20
 class Server_Utils:
     CHUNK_SIZE = 8 * 1024
     command_list = ["store","show","retr"]
-    logging.basicConfig(filename='./logs/server.log', filemode='w', format='%(filename)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logging.basicConfig(filename='../logs/server.log', filemode='w', format='%(filename)s - %(levelname)s - %(message)s', level=logging.INFO)
 
     def __init__(self, address, port):
         self.address = address
@@ -101,6 +101,10 @@ def store_file(file_name, host, port):
         file_data.close()
         s.close()
 
+''' 
+THESE ABSTRACTIONS ARE NOT YET COMPLETE THEY MIGHT BE REAFCTORED INTO A CLASS
+THE CONSTANT BIND AND CONFIGURE CALLS MIGHT ALSO BE REMOVED
+'''
 def send_command(command, host, port):
     '''
     command(string): name of the command being sent
@@ -149,14 +153,25 @@ def recv_command(host, port):
             new_command += data.decode("utf-8")
     logging.info(new_command)
     sock.close()
+    return new_command
 
-def init_logging():
+def parse_connection(command):
     '''
-    sets up the logging facility by setting up the correct path
+    command(string): the command received from the connection
     ''' 
-    pass
-
+    commands = ["store", "recv", "show"]
+    if  command == commands[0]:
+        return 0
+    elif command  == commands[1]:
+        return 0
+    elif commands == commands[2]:
+        return 0
+    else:
+        return 1
+    
+    
 '''
 curr note(the list command can be used to create a list of the bytes recieved[an ascii character code per byte]
 getting the length of this list can be used to determine if the thing received is a command
+add try catch blocks to the methods being methods hang in threads without them
 ''' 
