@@ -1,9 +1,8 @@
-import sys
 import socket
 import subprocess
 import pytest
 import logging
-from Server_Utils import Server_Utils, recv_file, recv_command
+from server import Server_Utils
 
 '''
 project: liftr
@@ -17,13 +16,14 @@ def example_server():
     PORT = 9999
     DATA_PORT = 10000
     logging.basicConfig(filename='./logs/server.log', filemode='w', format='%(filename)s - %(level    name)s - %(message)s', level=logging.DEBUG)
-    command = recv_command(HOST, PORT)
-    if parse_connection(command) == 0:
+    command = Server_Utils.recv_command(HOST, PORT)
+    logging.info("listening on port 9999")
+    if Server_Utils.parse_connection(command) == 0:
         if command == "store":
-            recv_file("example_file.txt", HOST, DATA_PORT)   
+            Server_Utils.recv_file("example_file.txt", HOST, DATA_PORT)   
 
 def main():
     example_server() 
 
-if '__name__' == '__main__':
+if __name__ == "__main__":
     main()

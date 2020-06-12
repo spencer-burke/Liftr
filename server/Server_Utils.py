@@ -1,6 +1,7 @@
 import socket
 import subprocess
 import logging
+import os
 
 '''
 project: liftr
@@ -9,7 +10,7 @@ author: Spencer Burke
 last-updated: 6/5/20
 '''
 
-class Server_Utils:
+class ServerUtils:
     CHUNK_SIZE = 8 * 1024
     command_list = ["store","show","retr"]
     logging.basicConfig(filename='../logs/server.log', filemode='w', format='%(filename)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -169,7 +170,16 @@ def parse_connection(command):
     else:
         return 1
     
-    
+def conf_logging():
+    '''
+    path(String): the appropriate path the log file with the project directory
+    '''
+    path = os.getcwd()
+    index = path.index("Liftr")
+    path_project = path[0:index+5]
+    path_log_result = path_project + "server" 
+    return path_log_result
+
 '''
 curr note(the list command can be used to create a list of the bytes recieved[an ascii character code per byte]
 getting the length of this list can be used to determine if the thing received is a command
