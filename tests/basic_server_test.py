@@ -1,4 +1,3 @@
-from server import Server 
 from server import Server_Utils
 import queue
 import pytest
@@ -11,14 +10,29 @@ def client_routines():
     HOST = '127.0.0.1'
     PORT = 9999
     DATA_PORT = 10000
-
-    Server_Utils.send_command("store", HOST, PORT)
     logging.info("Sending store command")
-    Server_Utils.store_file("./fixtures/text-file.txt", HOST, DATA_PORT)
+    Server_Utils.send_command("store", HOST, PORT)
+    logging.info("Sent store command")
     logging.info("storing file on data port")
+    Server_Utils.store_file("./fixtures/text-file.txt", HOST, DATA_PORT)
+    logging.info("successfully stored file on data port")
+
+def server_routines():
+    # very primitive server
+    logging.info("Started mock server")
+    HOST = '127.0.0.1'
+    PORT = 9999
+    DATA_PORT = 10000
+    logging.info("listening on port 9999")
+    command = Server_Utils.recv_command(HOST, PORT)
+    logging.info("successfully recieved command")
+    if Server_Utils.parse_connection(command) == 0:
+        logging.info("successfully parsed incoming connection")
+        if command == "store":
+            Server_Utils.recv_file("example_file.txt", HOST, DATA_PORT)   
 
 def client_server_routines():
-    thread_server = threading.Thread(target=Server.example_server)
+    thread_server = threading.Thread(target=server_routines)
     thread_server.start()
 
     thread_client = threading.Thread(target=client_routines)
@@ -32,9 +46,13 @@ def cleanup():
     pass
 
 def test_basic_server():
+    path = Server_Utils.conf_logging() + 'server.log'
+    logging.basicConfig(filename=path, filemode='w', format='%(filename)s - %(level    name)s - %(message)s', level=logging.DEBUG)
     client_server_routines() 
-    assert os.path.isfile("text-file.txt") == True
+    assert os.path.isfile("example_file.txt") == True
     cleanup() 
+
+client_server_routines()
 '''
 THIS IS NOT COMPLETE THE TEST IS STILL BEING WORKED ON
 '''  
