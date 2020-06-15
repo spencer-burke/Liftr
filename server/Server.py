@@ -1,29 +1,22 @@
 import socket
 import subprocess
-import pytest
 import logging
+import asyncio
 from server import Server_Utils
 
 '''
 project: liftr
 title: liftr file server
 author: Spencer Burke
-last-updated: 6/10/20
+last-updated: 6/13/20
 '''
 
-def example_server():
-    HOST = '127.0.0.1'
-    PORT = 9999
-    DATA_PORT = 10000
-    logging.basicConfig(filename='./logs/server.log', filemode='w', format='%(filename)s - %(level    name)s - %(message)s', level=logging.DEBUG)
-    command = Server_Utils.recv_command(HOST, PORT)
-    logging.info("listening on port 9999")
-    if Server_Utils.parse_connection(command) == 0:
-        if command == "store":
-            Server_Utils.recv_file("example_file.txt", HOST, DATA_PORT)   
+async def handle_connection(reader, writer):
+    '''
+    reader(asyncio.StreamReader): the object to read streams from accepted connections
+    writer(asyncio.StreamWriter): the object to write streams to accepted connections
+    '''
+    # Read until EOF reached
+    recieved_data = await reader.read()
+    # Still working on all of these schemes  
 
-def main():
-    example_server() 
-
-if __name__ == "__main__":
-    main()
