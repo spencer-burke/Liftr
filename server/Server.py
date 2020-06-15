@@ -1,6 +1,5 @@
 import socket
 import subprocess
-import pytest
 import logging
 from server import Server_Utils
 
