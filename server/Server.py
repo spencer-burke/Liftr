@@ -13,6 +13,8 @@ last-updated: 6/15/20
 
 COM_PORT = 8888
 DATA_PORT = 8889
+# this port exists because it is required for localhost development
+LOCAL_PORT = 8880
 
 async def transfer_file(reader, writer, filename):
    with open(filename, 'rb') as reader_file:
@@ -27,6 +29,7 @@ async def transfer_data(reader, writer, data):
     await writer.drain()
     writer.write_eof()
 
+# this needs to be modified being the server is still only being developed on localhost
 async def read_file_name(addr):
     '''
     addr(tuple): tuple containing ip and port from previous connection
@@ -58,11 +61,7 @@ async def handle_connection(c_reader, c_writer):
         print("acknowledgment sent")
         # open connection to read file name
         file_name = await read_file_name(addr)
-        #time.sleep(1)
-        ##writer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        ##writer_sock.bind(('127.0.0.1', 8880))
-        ##writer_sock.connect(('127.0.0.1', 8889))
-        ##n_reader, n_writer = await asyncio.open_connection(sock=writer_sock)
+        print(file_name)
         # open connection to read file data
  
     elif message == commands[1]:
