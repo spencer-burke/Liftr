@@ -45,6 +45,25 @@ async def read_file_name(addr):
     writer_sock.close()
     return file_name.decode()
  
+async def read_file_data(addr, file_name):
+    '''
+    addr(tuple): tuple containing ip and port from previous connection
+    file_name(string): the name of the file being connected
+    '''
+    time.sleep(.5)
+    writer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    writer_sock.bind(('127.0.0.1', 8880))
+    writer_sock.connect(('127.0.0.1', 8889))
+
+    n_reader, n_writer = await asyncio.open_connection(sock=writer_sock)
+
+    with open(file_name, 'wb') as file_writer:
+        file_data = await n_reader.read()
+        file_writer.writer(file_data)  
+
+    writer_sock.close()
+    
+
 async def handle_connection(c_reader, c_writer):
     commands = ["store", "recv", "show", "ack"]
 
@@ -61,9 +80,8 @@ async def handle_connection(c_reader, c_writer):
         print("acknowledgment sent")
         # open connection to read file name
         file_name = await read_file_name(addr)
-        print(file_name)
         # open connection to read file data
- 
+        await read_file_data(addr, file_name) 
     elif message == commands[1]:
         pass
     elif message == commands[2]:
