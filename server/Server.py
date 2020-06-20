@@ -62,8 +62,38 @@ async def read_file_data(addr, file_name):
         file_writer.writer(file_data)  
 
     writer_sock.close()
-    
 
+async def get_file(addr):
+   time.sleep(.5)
+    # create the socket used to manage the connections to the client
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as data_sock:
+        data_sock.bind(('127.0.0.1', LOCAL_PORT)) 
+        # connect the first time to get the name of the file
+        data_sock.connect(('127.0.0.1', DATA_PORT))
+        
+        # open asynchronous connection using raw connection
+        n_reader, n_writer = await asyncio.open_connection(sock=data_sock)
+        
+        # read file name from network
+        file_name = await n_reader.read()
+        # send acknowledgement
+        await tranfer_data(n_reader, n_writer, "ack")
+       
+        # use gathered data to read the data of the file
+
+        # reconnect to client to get the data of the file
+        data_socket.connect(('127.0.0.1', DATA_PORT))
+        
+        # open asynchronous connection using raw connection
+        d_reader, d_writer = await asyncio.open_connection(sock=data_sock)
+        
+        #open a file to be written to
+        with open(file_name, 'wb') as file_writer:
+            file_data = await d_reader.read()
+            file_writer.write(file_data)
+            # send acknowledgment
+            await transfer_data(d_reader, d_writer, "ack")
+         
 async def handle_connection(c_reader, c_writer):
     commands = ["store", "recv", "show", "ack"]
 
@@ -78,10 +108,7 @@ async def handle_connection(c_reader, c_writer):
         # acknowledge it
         await transfer_data(c_reader, c_writer, commands[3])
         print("acknowledgment sent")
-        # open connection to read file name
-        file_name = await read_file_name(addr)
-        # open connection to read file data
-        await read_file_data(addr, file_name) 
+        await get_file(addr)
     elif message == commands[1]:
         pass
     elif message == commands[2]:
