@@ -4,6 +4,7 @@ import logging
 import asyncio
 import ServerUtils
 import time
+import os
 '''
 project: liftr
 title: liftr file server
@@ -65,36 +66,36 @@ async def read_file_data(addr, file_name):
 
     writer_sock.close()
 
-async def get_file(addr):
-    time.sleep(.5)
-    # create the socket used to manage the connections to the client
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as data_sock:
-        data_sock.bind(('127.0.0.1', LOCAL_PORT)) 
-        # connect the first time to get the name of the file
-        data_sock.connect(('127.0.0.1', DATA_PORT))
-        
-        # open asynchronous connection using raw connection
-        n_reader, n_writer = await asyncio.open_connection(sock=data_sock)
-        
-        # read file name from network
-        file_name = await n_reader.read()
-        # send acknowledgement
-        await transfer_data(n_reader, n_writer, "ack")
-        #n_writer.close()
-        #await n_writer.wait_closed()
+def has_file(file_name):
+    '''
+    file_name(string): the name of the file to be searched for
+    return(boolean): true if the file exists, false if it doesn't
+    '''
+    path = "../files/" + file_name
+    exists = os.path.isfile(path)
+    return exists
 
-        d_reader, d_writer = await asyncio.open_connection(sock=data_sock)
+async def send_file_data(addr, file_name):
+    '''
+    addr(tuple): contains the ip and socket representing connection
+    file_name(string): the name of the file being sent
+    ''' 
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(('127.0.0.1', LOCAL_PORT))
+        sock.connect(addr)
         
-        file_data = await d_reader.read()
-        print(d_reader.at_eof())
-        print("got data")
-        print(file_data)
-        with open(file_name.decode(), 'w') as file_writer:
-            file_writer.write(file_data)
-        print("successfully recieved and created file") 
- 
+        reader, writer = await asyncio.open_connection(sock=addr[1])
+
+        with open(file_name, 'rb') as reader:
+            data = reader.read()
+            writer.write(data)
+            await writer.drain()
+            writer.write_eof()
+
 async def handle_connection(c_reader, c_writer):
-    commands = ["store", "recv", "show", "ack"]
+    commands = ["store", "recv", "show"]
+    responses = ["ack", "nul", "prs"]
 
     # listen for connection and log ip from connection
     data = await c_reader.read()
@@ -105,14 +106,20 @@ async def handle_connection(c_reader, c_writer):
     #recieve valid command
     if message == commands[0]:
         # acknowledge it
-        await transfer_data(c_reader, c_writer, commands[3])
-        print("acknowledgment sent")
+        await transfer_data(c_reader, c_writer, responses[0])
         #read file name
         file_name = await read_file_name(addr)
         #read file data
         await read_file_data(addr, file_name)
     elif message == commands[1]:
-        pass
+        # send acknowledgment
+        await transer_data(c_reader, c_writer, responses[0])
+        # get the file name from the client
+        file_name = await read_file_name(addr)
+        if has_file(file_name):
+             
+        # connect to client and send the file data
+         
     elif message == commands[2]:
         pass
     else:
@@ -125,4 +132,10 @@ async def main():
         await server.serve_forever()
 
 asyncio.run(main())     
-
+# MAKE SURE TO MODIFY THE RUN TIME
+'''
+    Current:
+        - build the files system(meaning the way to store and send files in the proper dir needs to happen
+        - implement other commands
+        - modify run time
+'''
