@@ -1,15 +1,14 @@
 import socket
-import subprocess
 import logging
 import asyncio
-import ServerUtils
 import time
 import os
+
 '''
 project: liftr
 title: liftr file server
 author: Spencer Burke
-last-updated: 6/15/20
+last-updated: 6/23/20
 '''
 
 COM_PORT = 8888
@@ -116,6 +115,30 @@ async def send_file_presence(addr, presence):
  
         await transfer_data(reader, writer, presence)
 
+def build_string():
+    '''
+    return(string): string representation of all the files within the storage system
+    '''
+    path = "../files"
+    dir_list = os.listdir(path)
+    result = ""
+
+    for _ in dir_list:
+        result += _ + "\n"
+
+    return result
+
+async def show():
+    time.sleep(.5)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(('127.0.0.1', LOCAL_PORT))
+        sock.connect(('127.0.0.1', 8889))
+
+        reader, writer = await asyncio.open_connection(sock=sock)
+ 
+        await transfer_data(reader, writer, build_string())
+     
 async def handle_connection(c_reader, c_writer):
     commands = ["store", "recv", "show"]
     responses = ["ack", "nul", "prs"]
@@ -140,17 +163,15 @@ async def handle_connection(c_reader, c_writer):
         file_name = await read_file_name(addr)
         # tell the client if the file is within the server
         if has_file(file_name):
-            print("has file")
             await send_file_presence(addr, responses[2])
             # connect to client and send the file data
             await send_file_data(addr, file_name) 
         else:
             await send_file_presence(responses[1])
     elif message == commands[2]:
-        pass
-    else:
-        pass
-
+        await transfer_data(c_reader, c_writer, responses[0])
+        await show()    
+    
 async def main():
     server = await asyncio.start_server(handle_connection, '127.0.0.1', 8888)
     
@@ -161,7 +182,6 @@ asyncio.run(main())
 # MAKE SURE TO MODIFY THE RUN TIME
 '''
     Current:
-        - build the files system(meaning the way to store and send files in the proper dir needs to happen
         - implement other commands
         - modify run time
 '''
