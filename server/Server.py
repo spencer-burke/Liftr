@@ -93,6 +93,20 @@ async def send_file_data(addr, file_name):
             await writer.drain()
             writer.write_eof()
 
+async def send_file_presence(addr, presence):
+    '''
+    addr(tuple): contains the ip and socket representing connection
+    presence(string): the response saying whether the file is there
+    '''
+     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(('127.0.0.1', LOCAL_PORT))
+        sock.connect(addr)
+
+        reader, writer = await asyncio.open_connection(sock=addr[1])
+ 
+        await transfer_data(reader, writer, presence)
+
 async def handle_connection(c_reader, c_writer):
     commands = ["store", "recv", "show"]
     responses = ["ack", "nul", "prs"]
@@ -102,24 +116,26 @@ async def handle_connection(c_reader, c_writer):
     message = data.decode()
     addr = c_writer.get_extra_info('peername')
     new_addr = ('127.0.0.1', 8889)
- 
-    #recieve valid command
+
     if message == commands[0]:
         # acknowledge it
         await transfer_data(c_reader, c_writer, responses[0])
-        #read file name
+        # read file name
         file_name = await read_file_name(addr)
-        #read file data
+        # read file data
         await read_file_data(addr, file_name)
     elif message == commands[1]:
         # send acknowledgment
         await transer_data(c_reader, c_writer, responses[0])
         # get the file name from the client
         file_name = await read_file_name(addr)
+        # tell the client if the file is within the server
         if has_file(file_name):
-             
+            await send_file_presence(responses[2])     
+        else:
+            await send_file_presence(responses[1])
         # connect to client and send the file data
-         
+        await send_file_data(addr, file_name) 
     elif message == commands[2]:
         pass
     else:
