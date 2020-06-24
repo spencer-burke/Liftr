@@ -172,16 +172,25 @@ async def handle_connection(c_reader, c_writer):
         await transfer_data(c_reader, c_writer, responses[0])
         await show()    
     
-async def main():
-    server = await asyncio.start_server(handle_connection, '127.0.0.1', 8888)
-    
-    async with server:
-        await server.serve_forever()
+def main():
+    event_loop = asyncio.get_event_loop()
+    protocol_factory = asyncio.start_server(handle_connection, '127.0.0.1', 8888)
+    server_endpoint = event_loop.run_until_complete(protocol_factory)
 
-asyncio.run(main())     
-# MAKE SURE TO MODIFY THE RUN TIME
+    try:
+        event_loop.run_forever()     
+    except(KeyboardInterrupt):
+            pass
+    finally:
+        server_endpoint.close()
+        event_loop.run_until_complete(server_endpoint.wait_closed())
+        event_loop.close()
+
+if __name__ == '__main__':
+     main()   
+
 '''
     Current:
-        - implement other commands
-        - modify run time
+        - implement remote versions
+        - implement configuration
 '''
