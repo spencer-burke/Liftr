@@ -1,7 +1,7 @@
 import socket
 import asyncio
 
-def handle_connection(reader, writer):
+async def handle_connection(reader, writer):
     data = await reader.read(100)
     message = data.decode()
     addr = writer.get_extra_info('peername')
@@ -14,7 +14,7 @@ def handle_connection(reader, writer):
     print("Close the connection")
     writer.close() 
 
-def main():
+async def main():
     server = await asyncio.start_server(handle_connection, '127.0.0.1', 8888)
 
     addr = server.sockets[0].getsockname()
@@ -24,4 +24,5 @@ def main():
         await server.serve_forever() 
 
 if __name__ == '__main__':
-    main()
+     asyncio.run(main())
+
