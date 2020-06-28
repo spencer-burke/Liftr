@@ -1,6 +1,9 @@
 import socket
 import asyncio
 
+async def next_connection(addr):
+    pass
+
 async def handle_connection(reader, writer):
     data = await reader.read(100)
     message = data.decode()
