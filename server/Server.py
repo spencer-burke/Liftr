@@ -1,3 +1,7 @@
+'''
+CURRENTLY WORKING REFACTORING THE SERVER INTO A NETWORKED VERSION
+CURRENTLY WORKING ON LINE 46; GETTING PREVIOUS IP AND MAKING A NEW USING THE DATA_PORT
+'''
 import socket
 import logging
 import asyncio
@@ -8,13 +12,20 @@ import os
 project: liftr
 title: liftr file server
 author: Spencer Burke
-last-updated: 6/23/20
+last-updated: 6/28/20
 '''
 
 COM_PORT = 8888
 DATA_PORT = 8889
-# this port exists because it is required for localhost development
-LOCAL_PORT = 8880
+IP = conf_ip("../conf/conf.txt") 
+
+def conf_ip(path):
+    '''
+    path(string): path to conf file
+    return(int): the ip used for the server 
+    '''
+    with open(path, 'r') as reader:
+        return reader.readlines()[0][4:-1]
 
 async def transfer_file(reader, writer, filename):
    with open(filename, 'rb') as reader_file:
@@ -34,10 +45,12 @@ async def read_file_name(addr):
     '''
     addr(tuple): tuple containing ip and port from previous connection
     '''
+    prev_ip = addr(0)
+    
     time.sleep(.5)
     writer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     writer_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    writer_sock.bind(('127.0.0.1', 8880))
+    writer_sock.bind((IP, DATA_PORT))
     writer_sock.connect(('127.0.0.1', 8889))
 
     n_reader, n_writer = await asyncio.open_connection(sock=writer_sock)
@@ -192,5 +205,4 @@ if __name__ == '__main__':
 '''
     Current:
         - implement remote versions
-        - implement configuration
 '''
