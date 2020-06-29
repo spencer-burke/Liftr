@@ -1,8 +1,19 @@
 import socket
 import asyncio
 
+async def transfer_data(reader, writer, data):
+    writer.write(data.encode())
+    await writer.drain()
+    writer.write_eof()
+
 async def next_connection(addr):
-    pass
+   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(('ACTUAL IP ON NETWORK', 8889)) 
+        sock.connect(('ACTUAL IP ON NETWORK', 8889))
+        
+        reader, writer = await asyncio.open_connection(sock=sock)
+
+        transfer_data(reader, writer, "hello again")
 
 async def handle_connection(reader, writer):
     data = await reader.read(100)
