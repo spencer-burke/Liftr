@@ -1,7 +1,3 @@
-'''
-CURRENTLY WORKING REFACTORING THE SERVER INTO A NETWORKED VERSION
-CURRENTLY WORKING ON LINE 46; GETTING PREVIOUS IP AND MAKING A NEW USING THE DATA_PORT
-'''
 import socket
 import logging
 import asyncio
@@ -12,7 +8,7 @@ import os
 project: liftr
 title: liftr file server
 author: Spencer Burke
-last-updated: 6/28/20
+last-updated: 6/29/20
 '''
 
 COM_PORT = 8888
@@ -35,48 +31,46 @@ async def transfer_file(reader, writer, filename):
         await writer.drain() 
         writer.write_eof()
 
-async def transfer_data(reader, writer, data):
+async def transfer_data(writer, data):
     writer.write(data.encode())
     await writer.drain()
     writer.write_eof()
 
-# this needs to be modified being the server is still only being developed on localhost
 async def read_file_name(addr):
     '''
-    addr(tuple): tuple containing ip and port from previous connection
+    addr(tuple): contains the ip and socket representing previous connection
     '''
-    prev_ip = addr(0)
+    new_addr = (addr[0], DATA_PORT)
     
     time.sleep(.5)
-    writer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    writer_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    writer_sock.bind((IP, DATA_PORT))
-    writer_sock.connect(('127.0.0.1', 8889))
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((IP, DATA_PORT))
+        sock.connect(new_addr)
 
-    n_reader, n_writer = await asyncio.open_connection(sock=writer_sock)
+        reader, writer = await asyncio.open_connection(sock=sock)
 
-    file_name = await n_reader.read()
-    writer_sock.close()
-    return file_name.decode()
- 
+        file_name = await n_reader.read()
+        return file_name.decode()
+
 async def read_file_data(addr, file_name):
     '''
-    addr(tuple): tuple containing ip and port from previous connection
+    addr(tuple): contains the ip and socket representing previous connection
     file_name(string): the name of the file being connected
     '''
+    new_addr = (addr[0], DATA_PORT)
+
     time.sleep(.5)
-    writer_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    writer_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    writer_sock.bind(('127.0.0.1', 8880))
-    writer_sock.connect(('127.0.0.1', 8889))
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((IP, DATA_PORT))
+        sock.connect(new_addr)
 
-    n_reader, n_writer = await asyncio.open_connection(sock=writer_sock)
+        reader, writer = await asyncio.open_connection(sock=sock)
 
-    with open(file_name, 'wb') as file_writer:
-        file_data = await n_reader.read()
-        file_writer.write(file_data)  
-
-    writer_sock.close()
+        with open(file_name, 'wb') as file_writer:
+                file_data = await n_reader.read()
+                file_writer.write(file_data)  
 
 def has_file(file_name):
     '''
@@ -96,14 +90,16 @@ def get_file_path(file_name):
 
 async def send_file_data(addr, file_name):
     '''
-    addr(tuple): contains the ip and socket representing connection
+    addr(tuple): contains the ip and socket representing previous connection
     file_name(string): the name of the file being sent
     ''' 
+    new_addr = (addr[0], DATA_PORT)
+
     time.sleep(.5)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('127.0.0.1', LOCAL_PORT))
-        sock.connect(('127.0.0.1', 8889))
+        sock.bind((IP, DATA_PORT))
+        sock.connect(new_addr)
         
         reader, writer = await asyncio.open_connection(sock=sock)
 
@@ -115,18 +111,20 @@ async def send_file_data(addr, file_name):
 
 async def send_file_presence(addr, presence):
     '''
-    addr(tuple): contains the ip and socket representing connection
+    addr(tuple): contains the ip and socket representing previous connection
     presence(string): the response saying whether the file is there
     '''
+    new_addr = (addr[0], DATA_PORT)
+
     time.sleep(.5)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('127.0.0.1', LOCAL_PORT))
-        sock.connect(('127.0.0.1', 8889))
+        sock.bind((IP, DATA_PORT))
+        sock.connect(new_addr)
 
         reader, writer = await asyncio.open_connection(sock=sock)
  
-        await transfer_data(reader, writer, presence)
+        await transfer_data(writer, presence)
 
 def build_string():
     '''
@@ -141,37 +139,41 @@ def build_string():
 
     return result
 
-async def show():
+async def show(addr):
+    '''
+    addr(tuple): contains the ip and socket representing connection    
+    '''                                                                    
+    new_addr = (addr[0], DATA_PORT)
+
     time.sleep(.5)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('127.0.0.1', LOCAL_PORT))
-        sock.connect(('127.0.0.1', 8889))
+        sock.bind((IP, DATA_PORT))
+        sock.connect(new_addr)
 
         reader, writer = await asyncio.open_connection(sock=sock)
  
-        await transfer_data(reader, writer, build_string())
+        await transfer_data(writer, build_string())
      
-async def handle_connection(c_reader, c_writer):
+async def handle_connection(reader, writer):
     commands = ["store", "recv", "show"]
     responses = ["ack", "nul", "prs"]
 
     # listen for connection and log ip from connection
-    data = await c_reader.read()
+    data = await reader.read()
     message = data.decode()
-    addr = c_writer.get_extra_info('peername')
-    new_addr = ('127.0.0.1', 8889)
+    addr = writer.get_extra_info('peername')
 
     if message == commands[0]:
-        # acknowledge it
-        await transfer_data(c_reader, c_writer, responses[0])
+        # send acknowledgment
+        await transfer_data(writer, responses[0])
         # read file name
         file_name = await read_file_name(addr)
         # read file data
         await read_file_data(addr, file_name)
     elif message == commands[1]:
         # send acknowledgment
-        await transfer_data(c_reader, c_writer, responses[0])
+        await transfer_data(writer, responses[0])
         # get the file name from the client
         file_name = await read_file_name(addr)
         # tell the client if the file is within the server
@@ -182,14 +184,14 @@ async def handle_connection(c_reader, c_writer):
         else:
             await send_file_presence(responses[1])
     elif message == commands[2]:
-        await transfer_data(c_reader, c_writer, responses[0])
+        # acknowledge it
+        await transfer_data(writer, responses[0])
         await show()    
     
 def main():
     event_loop = asyncio.get_event_loop()
-    protocol_factory = asyncio.start_server(handle_connection, '127.0.0.1', 8888)
-    server_endpoint = event_loop.run_until_complete(protocol_factory)
-
+    protocol_factory = asyncio.start_server(handle_connection, IP, 8888) 
+    server_endpoint = event_loop.run_until_complete(protocol_factory) 
     try:
         event_loop.run_forever()     
     except(KeyboardInterrupt):
@@ -202,7 +204,3 @@ def main():
 if __name__ == '__main__':
      main()   
 
-'''
-    Current:
-        - implement remote versions
-'''
