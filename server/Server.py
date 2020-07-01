@@ -187,7 +187,7 @@ async def handle_connection(reader, writer):
     elif message == commands[2]:
         # acknowledge it
         await transfer_data(writer, responses[0])
-        await show()    
+        await show(addr)    
     
 def main():
     event_loop = asyncio.get_event_loop()
