@@ -13,7 +13,6 @@ last-updated: 6/29/20
 
 COM_PORT = 8888
 DATA_PORT = 8889
-IP = conf_ip("../conf/conf.txt") 
 
 def conf_ip(path):
     '''
@@ -22,6 +21,8 @@ def conf_ip(path):
     '''
     with open(path, 'r') as reader:
         return reader.readlines()[0][4:-1]
+
+IP = conf_ip("../conf/conf.txt") 
 
 async def transfer_file(reader, writer, filename):
    with open(filename, 'rb') as reader_file:
