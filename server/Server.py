@@ -51,7 +51,7 @@ async def read_file_name(addr):
 
         reader, writer = await asyncio.open_connection(sock=sock)
 
-        file_name = await n_reader.read()
+        file_name = await reader.read()
         return file_name.decode()
 
 async def read_file_data(addr, file_name):
