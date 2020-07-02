@@ -69,7 +69,8 @@ async def read_file_data(addr, file_name):
 
         reader, writer = await asyncio.open_connection(sock=sock)
 
-        with open(file_name, 'wb') as file_writer:
+        file_path = "../files/" + file_name
+        with open(file_path, 'wb') as file_writer:
                 file_data = await reader.read()
                 file_writer.write(file_data)  
 
