@@ -70,7 +70,7 @@ async def read_file_data(addr, file_name):
         reader, writer = await asyncio.open_connection(sock=sock)
 
         with open(file_name, 'wb') as file_writer:
-                file_data = await n_reader.read()
+                file_data = await reader.read()
                 file_writer.write(file_data)  
 
 def has_file(file_name):
