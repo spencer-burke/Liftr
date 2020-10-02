@@ -33,6 +33,10 @@ async def transfer_file(reader, writer, filename):
         writer.write_eof()
 
 async def transfer_data(writer, data):
+    '''
+    writer(asyncio object): the writer used to send data
+    data(string): the data being sent
+    '''
     writer.write(data.encode())
     await writer.drain()
     writer.write_eof()
