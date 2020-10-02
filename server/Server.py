@@ -167,6 +167,10 @@ async def show(addr):
         await transfer_data(writer, build_string())
      
 async def handle_connection(reader, writer):
+    '''
+    reader(asyncio file object): asynchronous file object which reads data from remote connection
+    writer(asyncio file object): asynchronous file object which writes data to remote connection
+    '''
     commands = ["store", "recv", "show"]
     responses = ["ack", "nul", "prs"]
 
