@@ -24,13 +24,13 @@ def conf_ip(path):
 
 IP = conf_ip("../conf/conf.txt") 
 
-async def transfer_file(reader, writer, filename):
+async def transfer_file(reader, writer, file_name):
     '''
     reader(asyncio file object): object used to read data
     writer(asyncio file object): object used to write data
     filename(string): name of file being transferred
     '''
-   with open(filename, 'rb') as reader_file:
+   with open(file_name, 'rb') as reader_file:
         file_data = reader_file.read()
 
         writer.write(file_data)
